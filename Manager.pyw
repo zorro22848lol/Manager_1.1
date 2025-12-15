@@ -10,7 +10,7 @@ class CompactMaFileManager:
         self.username = "@Nora_Bobra_CS2"
         self.window = tk.Tk()
         self.window.title("MaFile Manager")
-        self.window.geometry("520x580")  # Увеличил немного размер
+        self.window.geometry("460x520")
         self.window.configure(bg='#000000')
         self.window.resizable(False, False)
         
@@ -21,7 +21,7 @@ class CompactMaFileManager:
         self.colors = {
             'bg': '#000000',
             'bg_secondary': '#111111',
-            'primary': '#00ff00',  # Зеленый
+            'primary': '#00ff00',
             'secondary': '#666666',
             'accent': '#0088ff',
             'success': '#00ff00',
@@ -190,7 +190,7 @@ class CompactMaFileManager:
                                  bg=self.colors['bg'],
                                  fg=self.colors['text_secondary'],
                                  anchor='w',
-                                 wraplength=400)  # Ограничиваем ширину текста
+                                 wraplength=400)
             desc_label.pack(anchor='w', pady=(1, 0))
         
         # ========== ПРОГРЕСС БАР ==========
@@ -297,7 +297,7 @@ class CompactMaFileManager:
         scrollbar.pack(side='right', fill='y')
         
         self.log_text = tk.Text(log_container,
-                               height=6,  # Увеличил высоту
+                               height=6,
                                font=('Consolas', 8),
                                bg=self.colors['entry_bg'],
                                fg=self.colors['text'],
@@ -344,12 +344,26 @@ class CompactMaFileManager:
         # Бинд для обновления информации о файлах
         self.folder_var.trace('w', self.on_folder_changed)
     
+    def get_mafiles(self, folder):
+        """Получение списка всех .mafile файлов (с любым регистром)"""
+        if not folder or not os.path.exists(folder):
+            return []
+        
+        # Ищем файлы с разными вариантами расширения
+        files = []
+        for filename in os.listdir(folder):
+            # Проверяем расширение без учета регистра
+            if filename.lower().endswith(('.mafile', '.mafiles')):
+                files.append(filename)
+        
+        return files
+    
     def on_folder_changed(self, *args):
         """Обновление информации при изменении папки"""
         folder = self.folder_var.get()
         if folder and os.path.exists(folder):
             try:
-                files = [f for f in os.listdir(folder) if f.endswith('.maFile')]
+                files = self.get_mafiles(folder)
                 count = len(files)
                 self.file_info_label.config(
                     text=f"Найдено файлов: {count}",
@@ -369,7 +383,7 @@ class CompactMaFileManager:
     def browse_folder(self):
         """Выбор папки через диалоговое окно"""
         folder = filedialog.askdirectory(
-            title="Выберите папку с .maFile файлами",
+            title="Выберите папку с .mafile файлами",
             initialdir=os.path.expanduser("~")
         )
         
@@ -442,11 +456,13 @@ class CompactMaFileManager:
         self.result_btn.config(state='disabled', text="")
         
         try:
-            files = [f for f in os.listdir(folder) if f.endswith('.maFile')]
+            files = self.get_mafiles(folder)
             total = len(files)
             
             if total == 0:
-                messagebox.showinfo("Информация", "В выбранной папке нет .maFile файлов!")
+                messagebox.showinfo("Информация", 
+                                   "В выбранной папке нет .mafile файлов!\n\n"
+                                   "Ищет файлы с расширениями: .mafile .mafiles .maFile .maFiles")
                 return
             
             self.log_message(f"Начата обработка {total} файлов", "info")
