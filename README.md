@@ -1,42 +1,3 @@
-Skip to content
-Navigation Menu
-norabobra
-Manager-maFile
-
-Type / to search
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-Files
-Go to file
-t
-.gitignore
-LICENSE
-Manager.py
-README.md
-Manager-maFile
-/README.md
-norabobra
-norabobra
-Create README.md
-17bf18d
- · 
-16 minutes ago
-Manager-maFile
-/README.md
-
-Preview
-
-Code
-
-Blame
-118 lines (70 loc) · 4.57 KB
 MaFile Manager Утилита для управления и преобразования файлов .maFile, используемых в Steam Guard. Программа предоставляет несколько режимов обработки файлов для различных нужд.
 
 🚀 Функции
@@ -135,3 +96,4 @@ Q: Поддерживается ли macOS/Linux? A: Да, программа к
 ⚖️ Отказ от ответственности Используйте программу только с файлами, на которые у вас есть права. Автор не несет ответственности за потерю данных или другие проблемы, возникшие при использовании программы.
 
 Manager-maFile/README.md at v1 · norabobra/Manager-maFile
+
