@@ -1,6 +1,5 @@
 # MaFile Manager
 
-![Version](https://img.shields.io/badge/version-2.0-green)
 ![Python](https://img.shields.io/badge/python-3.7+-blue)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
@@ -219,5 +218,6 @@ MIT License - смотрите файл [LICENSE](LICENSE) для подробн
 4. **Рекомендуемый формат логинов:** `SteamID:password` для гарантированного сопоставления
 
 ---
+
 
 **Создано с ❤️ для сообщества Steam**
