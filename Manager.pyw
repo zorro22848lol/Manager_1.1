@@ -545,10 +545,11 @@ class CompactMaFileManager:
     def select_mafiles(self):
         """Выбор MaFiles для конвертации в ASF - поддерживает все расширения"""
         filetypes = [
-            ('MaFiles', '*.mafile'),
-            ('MaFiles', '*.mafiles'),
-            ('MaFiles', '*.maFile'),
-            ('MaFiles', '*.maFiles'),
+            ('MaFiles (все форматы)', '*.mafile;*.mafiles;*.maFile;*.maFiles'),
+            ('MaFiles (.mafile)', '*.mafile'),
+            ('MaFiles (.mafiles)', '*.mafiles'),
+            ('MaFiles (.maFile)', '*.maFile'),
+            ('MaFiles (.maFiles)', '*.maFiles'),
             ('All files', '*.*')
         ]
         mafiles = filedialog.askopenfilenames(filetypes=filetypes, title='Выберите MaFile файлы')
@@ -660,7 +661,7 @@ class CompactMaFileManager:
         return os.path.splitext(filename)[0]
     
     def create_asf_files(self):
-        """Конвертация в ASF файлы"""
+        """Конвертация в ASF файлы - с сохранением как .maFile"""
         # Проверка наличия файлов
         if not self.mafiles_paths:
             messagebox.showerror('Ошибка', 'Пожалуйста, выберите MaFiles!')
@@ -763,9 +764,6 @@ class CompactMaFileManager:
             # Логируем информацию о загруженных данных
             self.log_asf_message(f"Загружено {len(logpass_dict)} записей из файла с логинами", "info")
             
-            # Показываем все логины для отладки
-            self.log_asf_message(f"Все логины из файла: {', '.join(list(logpass_dict.keys()))}", "info")
-            
             # Создаем копию словаря для использования
             available_logins = logpass_dict.copy()
             
@@ -775,6 +773,7 @@ class CompactMaFileManager:
             self.log_asf_message(f"Начата конвертация в ASF файлы", "info")
             self.log_asf_message(f"MaFiles: {len(self.mafiles_paths)}", "info")
             self.log_asf_message(f"Папка сохранения: {output_folder}", "info")
+            self.log_asf_message(f"Файлы будут сохранены с расширением .maFile", "info")
             
             # Собираем информацию о всех maFiles
             ma_files_data = []
@@ -812,13 +811,19 @@ class CompactMaFileManager:
                 
                 if login and password:
                     try:
-                        # Создаем имя файла
+                        # Создаем безопасное имя файла
                         safe_filename = steam_id.replace(':', '_').replace('/', '_').replace('\\', '_')
                         
-                        # Копируем maFile
-                        shutil.copy2(ma_file['path'], os.path.join(output_folder, f'{safe_filename}.maFile'))
+                        # Читаем оригинальный maFile
+                        with open(ma_file['path'], 'r', encoding='utf-8') as f:
+                            mafile_data = json.load(f)
                         
-                        # Создаем JSON конфиг
+                        # Сохраняем maFile с расширением .maFile
+                        mafile_output_path = os.path.join(output_folder, f'{safe_filename}.maFile')
+                        with open(mafile_output_path, 'w', encoding='utf-8') as f:
+                            json.dump(mafile_data, f, indent=2, ensure_ascii=False)
+                        
+                        # Создаем JSON конфиг для ASF
                         asf_config = {
                             "Enabled": True,
                             "OnlineStatus": 7,
@@ -827,12 +832,15 @@ class CompactMaFileManager:
                             "SteamPassword": password
                         }
                         
-                        with open(os.path.join(output_folder, f'{safe_filename}.json'), 'w', encoding='utf-8') as f:
+                        # Сохраняем конфиг ASF
+                        config_output_path = os.path.join(output_folder, f'{safe_filename}.json')
+                        with open(config_output_path, 'w', encoding='utf-8') as f:
                             json.dump(asf_config, f, indent=4, ensure_ascii=False)
                         
                         success_count += 1
                         self.log_asf_message(f"[УСПЕХ] {filename} -> Логин: {login}", "success")
                         self.log_asf_message(f"  Steam ID: {steam_id}", "success")
+                        self.log_asf_message(f"  Сохранен как: {safe_filename}.maFile", "success")
                         
                         # Удаляем использованный логин
                         if login in available_logins:
@@ -860,13 +868,19 @@ class CompactMaFileManager:
                         filename = ma_file['filename']
                         
                         try:
-                            # Создаем имя файла
+                            # Создаем безопасное имя файла
                             safe_filename = steam_id.replace(':', '_').replace('/', '_').replace('\\', '_')
                             
-                            # Копируем maFile
-                            shutil.copy2(ma_file['path'], os.path.join(output_folder, f'{safe_filename}.maFile'))
+                            # Читаем оригинальный maFile
+                            with open(ma_file['path'], 'r', encoding='utf-8') as f:
+                                mafile_data = json.load(f)
                             
-                            # Создаем JSON конфиг
+                            # Сохраняем maFile с расширением .maFile
+                            mafile_output_path = os.path.join(output_folder, f'{safe_filename}.maFile')
+                            with open(mafile_output_path, 'w', encoding='utf-8') as f:
+                                json.dump(mafile_data, f, indent=2, ensure_ascii=False)
+                            
+                            # Создаем JSON конфиг для ASF
                             asf_config = {
                                 "Enabled": True,
                                 "OnlineStatus": 7,
@@ -875,12 +889,15 @@ class CompactMaFileManager:
                                 "SteamPassword": password
                             }
                             
-                            with open(os.path.join(output_folder, f'{safe_filename}.json'), 'w', encoding='utf-8') as f:
+                            # Сохраняем конфиг ASF
+                            config_output_path = os.path.join(output_folder, f'{safe_filename}.json')
+                            with open(config_output_path, 'w', encoding='utf-8') as f:
                                 json.dump(asf_config, f, indent=4, ensure_ascii=False)
                             
                             success_count += 1
                             self.log_asf_message(f"[УСПЕХ-АВТО] {filename} -> Логин: {login}", "success")
                             self.log_asf_message(f"  Steam ID: {steam_id}", "success")
+                            self.log_asf_message(f"  Сохранен как: {safe_filename}.maFile", "success")
                             
                         except Exception as e:
                             self.log_asf_message(f"[ОШИБКА АВТО-ОБРАБОТКИ] {filename} - {str(e)}", "error")
@@ -898,11 +915,13 @@ class CompactMaFileManager:
             result_message = (
                 f"Конвертировано в ASF конфигов: {success_count}\n"
                 f"Ошибок/Пропущено: {len(failed_files)}\n"
-                f"Папка с результатами: {output_folder}"
+                f"Папка с результатами: {output_folder}\n\n"
+                f"Все файлы сохранены с расширением .maFile"
             )
             
             self.log_asf_message(f"Конвертация завершена!", "success")
             self.log_asf_message(f"Успешно: {success_count}/{len(self.mafiles_paths)}", "success")
+            self.log_asf_message(f"Все maFile файлы сохранены с расширением .maFile", "success")
             
             # Показываем детали неудачных файлов
             if failed_files:
@@ -1110,7 +1129,7 @@ class CompactMaFileManager:
                 
                 account_name = data.get("account_name", "")
                 if account_name:
-                    # Всегда сохраняем с расширением .maFile
+                    # Для режима 1 сохраняем с расширением .maFile
                     new_name = f"{account_name}.maFile"
                     shutil.copy2(filepath, os.path.join(output_folder, new_name))
                     processed += 1
@@ -1153,7 +1172,7 @@ class CompactMaFileManager:
                 
                 account = trimmed["account_name"]
                 if account and trimmed["shared_secret"] and trimmed["Session"]["SteamID"]:
-                    # Всегда сохраняем с расширением .maFile
+                    # Для режима 2 сохраняем с расширением .maFile
                     output_path = os.path.join(output_folder, f"{account}.maFile")
                     with open(output_path, "w", encoding="utf-8") as f:
                         json.dump(trimmed, f, indent=2, ensure_ascii=False)
@@ -1199,7 +1218,7 @@ class CompactMaFileManager:
                         "Session": {"SteamID": steamid}
                     }
                     
-                    # Всегда сохраняем с расширением .maFile
+                    # Для режима 3 сохраняем с расширением .maFile
                     output_path = os.path.join(output_folder, f"{account}.maFile")
                     with open(output_path, "w", encoding="utf-8") as f:
                         json.dump(trimmed, f, indent=4, ensure_ascii=False)
